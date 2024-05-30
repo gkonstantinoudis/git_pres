@@ -1,0 +1,132 @@
+---
+title: "ICRF Fellowship update"
+editor: visual
+format:
+    revealjs:
+      slide-number: true
+      incremental: false
+      chalkboard:
+        buttons: false
+---
+
+## Ongoing research projects
+
+-   Temperature and air-pollution interaction on COPD hospital admissions
+-   Early warnings for Dengue outbreaks in Sri Lanka and Nepal
+-   Excess mortality during the climate crisis
+-   Spatial vulnerabilities to heat in Greece
+
+## Temperature and air-pollution interaction
+
+-   Examine the effect modification of on temperature
+-   Examine this effect modification by age and sex
+-   Calculate number of hospitalisations attributed to this interaction PM10, PM2.5, NO2 and O3
+
+**Outcome:** Daily COPD hospitalisations as retrieved from SAHSU during 2002-2021. The analysis will be stratified by age and sex.
+
+## Stage
+
+-   I have collected and cleaned all the data
+-   Agreed on the statistical analysis plan
+-   To do during summer: develop the model and conduct the analysis
+
+## Early warnings for Dengue outbreaks in Sri Lanka and Nepal
+
+-   Collaboration with WHO, Dr Dorigatti and Prof Ferguson
+-   Develop Bayesian spatiotemporal models to predict Dengue outbreaks in Sri Lanka and Nepal
+-   Explore the importance of meteorological factors to the predictions
+-   Assess time windows of accurate predictions
+
+## Temperature
+
+![](Fig1.PNG)
+
+## Statistical model
+
+$P(s, t)$ - Population in spatial unit $S$ at week $t$
+
+$X_i(s, t)$ - Mean temperature, precipitation and humidity in spatial unit $S$ at week $t$
+
+$Y(s, t)$ - number of Dengue cases in spatial unit $S$ at week $t$
+
+$$
+\begin{align}
+Y(s, t) &\sim \text{Poisson}(\mu(s, t)P(s, t))) \\
+\mu(s, t) &= \beta_0 + \sum_if(X_i(s, t)) + w(s) + u(t) + v(t_*) 
+\end{align}
+$$
+
+## Results
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+library(tidyverse)
+
+mod <- readRDS("mod2.rds")
+dat <- readRDS("datfin.rds")
+
+set.seed(11)
+pred <- rpois(n = nrow(dat), lambda = mod$summary.fitted.values$`0.5quant`)
+
+data.frame(
+  truth = dat$ncases, 
+  predicted = pred) %>% 
+  ggplot() + geom_point(aes(x=truth, y = predicted)) + 
+  geom_abline(slope = 1, intercept = 0, col = "blue") +
+  ylim(c(0, 2000)) + xlim(c(0, 2000)) +
+  theme_bw()
+
+```
+
+## Predictive ability
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+dat$pred <- pred
+
+dat %>% 
+  group_by(week) %>% 
+  summarise(truth=sum(ncases), 
+            pred=sum(pred)) %>% 
+  ggplot() + 
+  geom_point(aes(x=week, y=truth), col = "blue") + 
+   geom_point(aes(x=week, y=pred), col = "red") + 
+  theme_bw()
+
+```
+
+## Excess mortality during the climate crisis
+
+-   Develop a framework to estimate excess mortality during summer 2022 in Switzerland
+-   Revisions in Scientific Reports
+
+<center>![](Fig2.PNG)</center>
+
+## Medical research foundation grant
+
+-   Organise an international consortium to develop guidelines for estimating excess mortality
+
+-   First meeting in London in 2025
+
+-   Apply the framework to different European countries.
+
+    <center>![](Fig3.PNG)</center>
+
+## Spatial vulnerabilities to heat in Greece
+
+-   EURISE project, collaboration with stakeholders in Greece, Dr Filippidis and Dr Evangelopoulos
+-   Quantify spatial vulnerabilities to heat in Greece
+-   Examine interactions with smoking patterns
+-   Stage: Data collected, project starts in mid June
+
+## Other projects
+
+-   Supervision of MSc students: development of methodology capturing non-linear effects of heat
+-   Leading a working package for a Wellcome bid assessing temperature and mental health
+-   Writing a grant assessing the impact of pollen on CVDs
+-   Getting married in 30th of August :)
